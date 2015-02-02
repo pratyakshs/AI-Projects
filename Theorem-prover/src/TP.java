@@ -6,6 +6,7 @@ import java.util.Scanner;
 
 public class TP {
 	static List<String> lhs = new ArrayList<String>();
+	
 	static List<parseTree> lhs_tree = new ArrayList<parseTree>();
 	public static String stripBrackets(String line) {
 		if (line.charAt(0) != '(')
@@ -68,22 +69,102 @@ public class TP {
 			}
 		}
 	}
+	
+	public static String reduceOR(String line) {
+		String ans = line;
+		int index, ob, cb, i;
+		index = ans.indexOf('|');
+		while(index != -1){
+			
+			ob = cb = 0;
+			for(i = index+1; i < ans.length(); i++) {
+				if (ans.charAt(i) == '(') 
+					ob++;
+				else if (ans.charAt(i) == ')') 
+					cb++;
+				if (ob == cb) 
+					break;
+			}
+			
+			String r1 = ans.substring(index+1, i+1), r2 = ans.substring(i+1);
+			ob = cb = 0;
+			for(i = index-1; i >= 0; i--) {
+				if (ans.charAt(i) == '(') 
+					ob++;
+				else if (ans.charAt(i) == ')') 
+					cb++;
+				if (ob == cb) 
+					break;
+			}			
+			
+			String l1 = ans.substring(i, index), l2;
+			if (i != 0)
+				l2 = ans.substring(0, i-1);
+			else 
+				l2 = "";
+			
+			ans = l2 + "((" + l1 + "->F)->" + r1 + ")" + r2;
+			index = ans.indexOf('|');
+		} 
+		return ans;
+	}
+	
+	public static String reduceAND(String line) {
+		String ans = line;
+		int index, ob, cb, i;
+		index = ans.indexOf('&');
+		while(index != -1){
+			
+			ob = cb = 0;
+			for(i = index+1; i < ans.length(); i++) {
+				if (ans.charAt(i) == '(') 
+					ob++;
+				else if (ans.charAt(i) == ')') 
+					cb++;
+				if (ob == cb) 
+					break;
+			}
+			
+			String r1 = ans.substring(index+1, i+1), r2 = ans.substring(i+1);
+			ob = cb = 0;
+			for(i = index-1; i >= 0; i--) {
+				if (ans.charAt(i) == '(') 
+					ob++;
+				else if (ans.charAt(i) == ')') 
+					cb++;
+				if (ob == cb) 
+					break;
+			}			
+			
+			String l1 = ans.substring(i, index), l2;
+			if (i != 0)
+				l2 = ans.substring(0, i-1);
+			else 
+				l2 = "";
+			
+			ans = l2 + "(" + l1 + "->(" + r1 + "->F))->F" + r2;
+			index = ans.indexOf('|');
+		} 
+		return ans;
+	}
+	
 	public static void main(String[] args) {
 		
 		Scanner input = new Scanner(System.in);
 	    String line = input.nextLine();
-	    moveLeft(line);
-	    for(int i = 0; i < lhs.size()-1; i++) {
-	    	System.out.println(lhs.get(i));
-	    }
-	    System.out.println("----");
-	    System.out.println(lhs.get(lhs.size()-1)+"End it");
-	    
-	    
-	    for(int i = 0; i < lhs_tree.size(); i++) {
-	    	parseTree.print_tree(lhs_tree.get(i));
-	    	System.out.println();
-	    }
+	    System.out.println(reduceOR(line));
+//	    moveLeft(line);
+//	    for(int i = 0; i < lhs.size()-1; i++) {
+//	    	System.out.println(lhs.get(i));
+//	    }
+//	    System.out.println("----");
+//	    System.out.println(lhs.get(lhs.size()-1)+"End it");
+//	    
+//	    
+//	    for(int i = 0; i < lhs_tree.size(); i++) {
+//	    	parseTree.print_tree(lhs_tree.get(i));
+//	    	System.out.println();
+//	    }
 	   // System.out.println("----");
 	   // parseTree.print_tree(lhs_tree.get(lhs_tree.size()-1));
 	}
