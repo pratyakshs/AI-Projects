@@ -17,6 +17,10 @@ public class parseTree {
 		ltree = new parseTree(T.ltree);
 		rtree = new parseTree(T.rtree);
 	}
+	public boolean compare(parseTree T){
+		if(T==null){return this==null;}
+		return Nodeval.equals(T.Nodeval) && ltree.compare(T.ltree) && rtree.compare(T.rtree);
+	}
 	public static void print_tree(parseTree t)
 	{
 		System.out.print("(");
