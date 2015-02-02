@@ -87,9 +87,13 @@ public class Nodes {
 	
 	int h(int goal){
 //		return 0;
-		return manhattan(id, goal) + conflicts(id,goal);
+//		return manhattan(id, goal);//+ conflicts(id,goal);
 //		return displacement(id, goal);
-		
+		if (id % 2 == 0) {
+			return manhattan(id, goal);
+		}
+		else
+			return 0;
 		
 	}
 	
