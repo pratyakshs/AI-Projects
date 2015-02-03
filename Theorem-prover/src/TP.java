@@ -75,7 +75,6 @@ public class TP {
 		int index, ob, cb, i;
 		index = ans.indexOf('|');
 		while(index != -1){
-			
 			ob = cb = 0;
 			for(i = index+1; i < ans.length(); i++) {
 				if (ans.charAt(i) == '(') 
@@ -85,7 +84,6 @@ public class TP {
 				if (ob == cb) 
 					break;
 			}
-			
 			String r1 = ans.substring(index+1, i+1), r2 = ans.substring(i+1);
 			ob = cb = 0;
 			for(i = index-1; i >= 0; i--) {
@@ -113,8 +111,7 @@ public class TP {
 		String ans = line;
 		int index, ob, cb, i;
 		index = ans.indexOf('&');
-		while(index != -1){
-			
+		while(index != -1){			
 			ob = cb = 0;
 			for(i = index+1; i < ans.length(); i++) {
 				if (ans.charAt(i) == '(') 
@@ -123,8 +120,7 @@ public class TP {
 					cb++;
 				if (ob == cb) 
 					break;
-			}
-			
+			}			
 			String r1 = ans.substring(index+1, i+1), r2 = ans.substring(i+1);
 			ob = cb = 0;
 			for(i = index-1; i >= 0; i--) {
@@ -135,7 +131,6 @@ public class TP {
 				if (ob == cb) 
 					break;
 			}			
-			
 			String l1 = ans.substring(i, index), l2;
 			if (i != 0)
 				l2 = ans.substring(0, i-1);
@@ -143,16 +138,41 @@ public class TP {
 				l2 = "";
 			
 			ans = l2 + "(" + l1 + "->(" + r1 + "->F))->F" + r2;
-			index = ans.indexOf('|');
+			index = ans.indexOf('&');
 		} 
 		return ans;
 	}
+	
+	public static String reduceNOT(String line) {
+		String ans = line;
+		int index, ob, cb, i;
+		index = ans.indexOf('~');
+		while(index != -1){
+			ob = cb = 0;
+			for(i = index+1; i < ans.length(); i++) {
+				if (ans.charAt(i) == '(') 
+					ob++;
+				else if (ans.charAt(i) == ')') 
+					cb++;
+				if (ob == cb) 
+					break;
+			}
+			String r1 = ans.substring(index+1, i+1), r2 = ans.substring(i+1);
+			String l1 = ans.substring(0, index);
+			
+			ans = l1 + "(" + r1 + "->F)" + r2;
+			index = ans.indexOf('~');
+		} 
+		return ans;
+	}
+	
 	
 	public static void main(String[] args) {
 		
 		Scanner input = new Scanner(System.in);
 	    String line = input.nextLine();
-	    System.out.println(reduceOR(line));
+//	    System.out.println(reduceOR(reduceAND(line)));
+	    System.out.println(reduceNOT(line));
 //	    moveLeft(line);
 //	    for(int i = 0; i < lhs.size()-1; i++) {
 //	    	System.out.println(lhs.get(i));
@@ -169,3 +189,4 @@ public class TP {
 	   // parseTree.print_tree(lhs_tree.get(lhs_tree.size()-1));
 	}
 }
+//	(((p->(((a->r)->F)->(v->c)))->((d->F)->e)))&(f->(w&y))
