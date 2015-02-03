@@ -1,9 +1,11 @@
+import java.util.HashMap;
+
 
 public class parseTree {
 	parseTree ltree;
 	parseTree rtree;
 	String Nodeval;
-	
+
 	public void clean() {
 		if (ltree != null) 
 			ltree.clean();
@@ -13,7 +15,7 @@ public class parseTree {
 		rtree = null;
 		Nodeval = null;
 	}
-	
+
 	public parseTree()
 	{
 		Nodeval="";
@@ -25,28 +27,41 @@ public class parseTree {
 		{
 			return;}
 		Nodeval = T.Nodeval;
-		ltree = new parseTree(T.ltree);
-		rtree = new parseTree(T.rtree);
+		if(T.ltree!=null)ltree = new parseTree(T.ltree);
+		if(T.rtree!=null)rtree = new parseTree(T.rtree);
 	}
-	
 	public boolean compare(parseTree T){
-		if(T==null){return this==null;}
-		return Nodeval.equals(T.Nodeval) && ltree.compare(T.ltree) && rtree.compare(T.rtree);
+		if(T==null){return false;}
+		try
+		{
+			if(ltree==null && T.ltree!=null)return false;
+			if(rtree==null && T.rtree!=null)return false;
+			return Nodeval.equals(T.Nodeval) && ((ltree==null && T.ltree==null) || ltree.compare(T.ltree)) && ((rtree==null && T.rtree==null) || rtree.compare(T.rtree));
+		}
+		catch(Exception e)
+		{
+			return false;
+		}
+
 	}
-	
-	public static void print_tree(parseTree t)
+	public static String print_tree(parseTree t)
 	{
-		System.out.print("(");
+		//	System.out.print("(");
+		String k="";
+		k=k+"(";
 		if(t.ltree!=null)
 		{
-			print_tree(t.ltree);
+			k=k+print_tree(t.ltree);
 		}
-		System.out.print(t.Nodeval);
+		k=k+t.Nodeval;
+		//	System.out.print(t.Nodeval);
 		if(t.rtree!=null)
 		{
-			print_tree(t.rtree);
+			k=k+print_tree(t.rtree);
 		}
-		System.out.print(")");
+		k=k+")";
+		//	System.out.print(")");
+		return k;
 	}
 	public static void create_pt(parseTree t, String inp)
 	{
@@ -66,22 +81,22 @@ public class parseTree {
 		}
 		else
 		{	t.Nodeval="->";
-		
-			if(loc>0)
-			{
-				t.ltree=new parseTree();
-				create_pt(t.ltree,inp.substring(0,loc));
-			}
-			if(loc<inp.length()-2)
-			{
-				t.rtree=new parseTree();
-				create_pt(t.rtree,inp.substring(loc+2));
-			}
+
+		if(loc>0)
+		{
+			t.ltree=new parseTree();
+			create_pt(t.ltree,inp.substring(0,loc));
+		}
+		if(loc<inp.length()-2)
+		{
+			t.rtree=new parseTree();
+			create_pt(t.rtree,inp.substring(loc+2));
+		}
 		}
 	}
-	
+
 	public static parseTree A1(parseTree T1, parseTree T2){
-	// (T1->(T2->T1))
+		// (T1->(T2->T1))
 		parseTree T3 = new parseTree();
 		T3.Nodeval = "->";
 		T3.ltree = new parseTree(T1);
@@ -91,12 +106,12 @@ public class parseTree {
 		T3.rtree.rtree = T1;
 		return T3;
 	}
-	
+
 	public static parseTree A2(parseTree p, parseTree q, parseTree r) {
-	//	(p->(q->r))->((p->q)->(p->r))
+		//	(p->(q->r))->((p->q)->(p->r))
 		parseTree T = new parseTree();
 		T.Nodeval = "->";
-		
+
 		T.ltree = new parseTree();
 		T.ltree.Nodeval = "->";
 		T.ltree.ltree = new parseTree(p);
@@ -104,7 +119,7 @@ public class parseTree {
 		T.ltree.rtree.Nodeval = "->";
 		T.ltree.rtree.ltree = new parseTree(q);
 		T.ltree.rtree.rtree = new parseTree(r);
-		
+
 		T.rtree = new parseTree();
 		T.rtree.Nodeval = "->";
 		T.rtree.ltree = new parseTree();
@@ -117,7 +132,7 @@ public class parseTree {
 		T.rtree.rtree.rtree = new parseTree(r);
 		return T;
 	}
-	
+
 	public parseTree neg(){
 		parseTree T1 = new parseTree();
 		T1.Nodeval = "->";
@@ -126,8 +141,9 @@ public class parseTree {
 		T1.ltree = new parseTree(this);
 		return T1;
 	}
-	
+
 	public static parseTree A3(parseTree T){
+	//	((T->F)->F)->T
 		parseTree T3 = new parseTree();
 		T3.Nodeval = "->";
 		parseTree T4 = T.neg();
@@ -136,5 +152,18 @@ public class parseTree {
 		T4 = null;
 		T3.rtree = new parseTree(T);
 		return T3;
+	}
+	
+	public static void subtree(HashMap<String,parseTree> map,parseTree t)
+	{
+		if(t==null) return;
+		String k="";
+		k=parseTree.print_tree(t);
+		if(map.get(k)==null) 
+		{
+			map.put(k,t);
+			subtree(map,t.ltree);
+			subtree(map,t.rtree);
+		}
 	}
 }
