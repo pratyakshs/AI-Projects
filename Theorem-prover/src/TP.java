@@ -12,19 +12,23 @@ public class TP {
 	static HashMap<String, parseTree> map = new HashMap<String,parseTree>();
 	static HashMap<String, parseTree> map2 = new HashMap<String,parseTree>();
 	static boolean found=false;
-	
-	
+
+
 	static boolean mod_pon(parseTree T1, parseTree T2){
-		return T1.compare(T2.ltree);
+		boolean b = T1.compare(T2.ltree);
+		if (b == true) {
+//			System.out.println(parseTree.print_tree(T1));
+//			System.out.println(parseTree.print_tree(T2));
+		}
+		return b;
 	}
 
-	public static void Add_pt(parseTree ins)
-	{
+	public static void Add_pt(parseTree ins) {
 		String k="";
 		k = parseTree.print_tree(ins);
 		if(map.get(k)==null) 
 		{
-			System.out.println(k+" : inserted");
+			//			System.out.println(k +" : inserted");
 			map.put(k,ins);
 			lhs_tree.add(ins);
 		}
@@ -41,6 +45,7 @@ public class TP {
 					parseTree ins=new parseTree(lhs_tree.get(j).rtree);
 					String k=parseTree.print_tree(ins);
 					map2.put(k,ins);
+					Add_pt(ins);///
 					k=parseTree.print_tree(lhs_tree.get(j));
 					map2.put(k,lhs_tree.get(j));
 				}
@@ -49,6 +54,7 @@ public class TP {
 					parseTree ins=new parseTree(lhs_tree.get(i).rtree);
 					String k=parseTree.print_tree(ins);
 					map2.put(k,ins);
+					Add_pt(ins);///
 					k=parseTree.print_tree(lhs_tree.get(j));
 					map2.put(k,lhs_tree.get(j));
 					k=parseTree.print_tree(lhs_tree.get(i));
@@ -114,7 +120,7 @@ public class TP {
 			else {
 				parseTree t=new parseTree();
 				parseTree.create_pt(t,stripBrackets(reduceNOT("~"+rhs.substring(0,1))));
-				lhs.add(reduceNOT("~"+rhs.substring(0,1)));
+				lhs.add(stripBrackets(reduceNOT("~"+rhs.substring(0,1))));
 				Add_pt(t);
 				lhs.add("F");
 				return;
@@ -175,7 +181,7 @@ public class TP {
 				if (ob == cb) 
 					break;
 			}
-			
+
 			String r1 = ans.substring(index+1, i+1), r2 = ans.substring(i+1);
 			ob = cb = 0;
 			for(i = index-1; i >= 0; i--) {
@@ -191,8 +197,8 @@ public class TP {
 				l2 = ans.substring(0, i);
 			else 
 				l2 = "";
-			
-			
+
+
 			ans = l2 + "((" + l1 + "->(" + r1 + "->F))->F)" + r2;
 			index = ans.indexOf('&');
 		} 
@@ -221,7 +227,7 @@ public class TP {
 		} 
 		return ans;
 	}
-	
+
 	public static void build_subtree(HashMap<String,parseTree> map)
 	{
 		for(int i=0;i<lhs_tree.size();i++)
@@ -229,33 +235,35 @@ public class TP {
 			parseTree.subtree(map,lhs_tree.get(i));
 		}
 	}
-	
+
 	public static void applyAxioms() {
 		HashMap<String, parseTree> new_map = new HashMap<String,parseTree>();
-		
+
 		HashMap<String, parseTree> subtrees = new HashMap<String, parseTree>();
 		build_subtree(subtrees);
-		
+
 		for (String key : subtrees.keySet()) 
-	    {
-	    	parseTree A = subtrees.get(key);
+		{
+			parseTree A = subtrees.get(key);
 			parseTree T3 = parseTree.A3(A);
 			new_map.put(parseTree.print_tree(T3), T3);
-	    	for (String key2 : subtrees.keySet()) 
-	    	{
-	    		parseTree B = subtrees.get(key2);
+//			System.out.println("A3 on " + parseTree.print_tree(A) + " gives " + parseTree.print_tree(T3));
+			for (String key2 : subtrees.keySet()) 
+			{
+				parseTree B = subtrees.get(key2);
 				parseTree T1 = parseTree.A1(A, B);
 				new_map.put(parseTree.print_tree(T1), T1);
+//				System.out.println("A1 on " + parseTree.print_tree(A) + " and " + parseTree.print_tree(B) + " gives " + parseTree.print_tree(T1));
+				for (String key3 : subtrees.keySet()) 
+				{
+					parseTree C = subtrees.get(key3);
+					parseTree T2 = parseTree.A2(A, B, C);
+					new_map.put(parseTree.print_tree(T2), T2);
+//					System.out.println("A2 on " + parseTree.print_tree(A) + " and " + parseTree.print_tree(B) + " and " + parseTree.print_tree(C) + " gives " + parseTree.print_tree(T2));
+				}
+			}
+		}
 
-	    		for (String key3 : subtrees.keySet()) 
-	    		{
-	    			parseTree C = subtrees.get(key3);
-	    			parseTree T2 = parseTree.A2(A, B, C);
-	    			new_map.put(parseTree.print_tree(T2), T2);
-	    		}
-	    	}
-	    }
-		
 		for (String key : new_map.keySet()) {
 			if (key == "F") {
 				found = true;
@@ -263,39 +271,37 @@ public class TP {
 			Add_pt(new_map.get(key));
 		}
 	}
-	
-	
-	
+
+
+
 	public static void main(String[] args) {
 
-		Scanner input = new Scanner(System.in);
-		String line = input.nextLine();
-		line = reduceAND(reduceOR(reduceNOT(line)));
+//		Scanner input = new Scanner(System.in);
+//		String line = input.nextLine();
 		
+		String line = "(p|(p&q))->p";
+		line = reduceAND(reduceOR(reduceNOT(line)));
+		System.out.println("line = " + line);
 		moveLeft(line);
 		for(int i = 0; i < lhs.size()-1; i++) {
 			System.out.println(lhs.get(i));
 		}
 		System.out.println("----");
-		System.out.println(lhs.get(lhs.size()-1)+"End it");
+		System.out.println(lhs.get(lhs.size()-1));
+
 		int i=0;
+		
+//		for(i = 0; i < lhs_tree.size(); i++)
+//			System.out.println(parseTree.print_tree(lhs_tree.get(i)));
+//		parseTree t = new parseTree();
+//		parseTree.create_pt(t, "(p->(q->F))->F");
+//		System.out.println(parseTree.print_tree(t));
+		
 		while(!found) {
-			map2.clear();
-			for (String key : map.keySet()) {
-				map2.put(key, map.get(key));
-			}
 			applyAxioms();
 			applymp();
-			map.clear();
-			lhs_tree.clear();
-			for(String key : map2.keySet())
-			{
-				Add_pt(map2.get(key));
-			}
-		}
-		if (found) {
-			System.out.println("Mil gaya!!");
+			System.out.println(lhs_tree.size());
 		}
 	}
-	
+
 }

@@ -46,7 +46,6 @@ public class parseTree {
 	}
 	public static String print_tree(parseTree t)
 	{
-		//	System.out.print("(");
 		String k="";
 		k=k+"(";
 		if(t.ltree!=null)
@@ -54,44 +53,40 @@ public class parseTree {
 			k=k+print_tree(t.ltree);
 		}
 		k=k+t.Nodeval;
-		//	System.out.print(t.Nodeval);
 		if(t.rtree!=null)
 		{
 			k=k+print_tree(t.rtree);
 		}
 		k=k+")";
-		//	System.out.print(")");
 		return k;
 	}
 	public static void create_pt(parseTree t, String inp)
 	{
-		inp=TP.stripBrackets(inp);
-		int loc=-1;
-		for(int i=0;i<inp.length()-1;i++)
-		{
-			if(inp.charAt(i) == '-' && inp.charAt(i+1)=='>')
-			{
+		inp = TP.stripBrackets(inp);
+		int loc = -1, ob = 0, cb = 0;
+		for(int i = 0; i < inp.length()-1; i++) {
+			if (inp.charAt(i) == '(')
+				ob++;
+			else if (inp.charAt(i) == ')')
+				cb++;
+			if(inp.charAt(i) == '-' && inp.charAt(i+1)=='>' && ob == cb) {
 				loc=i;
 				break;
 			}
 		}
 		if(loc==-1)
-		{
 			t.Nodeval=inp;
-		}
-		else
-		{	t.Nodeval="->";
-
-		if(loc>0)
-		{
-			t.ltree=new parseTree();
-			create_pt(t.ltree,inp.substring(0,loc));
-		}
-		if(loc<inp.length()-2)
-		{
-			t.rtree=new parseTree();
-			create_pt(t.rtree,inp.substring(loc+2));
-		}
+		
+		else {	
+			t.Nodeval="->";
+			if(loc > 0) {
+				t.ltree = new parseTree();
+				create_pt(t.ltree, inp.substring(0,loc));
+			}
+			if(loc < inp.length()-2) {
+				t.rtree = new parseTree();
+				create_pt(t.rtree, inp.substring(loc+2));
+			}
 		}
 	}
 
@@ -143,7 +138,7 @@ public class parseTree {
 	}
 
 	public static parseTree A3(parseTree T){
-	//	((T->F)->F)->T
+		//	((T->F)->F)->T
 		parseTree T3 = new parseTree();
 		T3.Nodeval = "->";
 		parseTree T4 = T.neg();
@@ -153,7 +148,7 @@ public class parseTree {
 		T3.rtree = new parseTree(T);
 		return T3;
 	}
-	
+
 	public static void subtree(HashMap<String,parseTree> map,parseTree t)
 	{
 		if(t==null) return;
