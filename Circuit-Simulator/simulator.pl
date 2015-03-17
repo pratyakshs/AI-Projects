@@ -33,3 +33,10 @@ convert(X,X).
 
 % goal to verify given spec
 verify2(X,B,C) :- convert(X,Z),verify(Z,B,C),!.
+
+% checks if gate X is disconnected (no inputs)
+is_disconnected(X) :- orgate(X), connected(A,B,X), !, false.
+is_disconnected(X) :- andgate(X), connected(A,B,X), !, false.
+is_disconnected(X) :- notgate(X), connected(A,X), !, false.
+is_disconnected(X).
+

@@ -38,8 +38,7 @@ public class parseTree {
 			if(rtree==null && T.rtree!=null)return false;
 			return Nodeval.equals(T.Nodeval) && ((ltree==null && T.ltree==null) || ltree.compare(T.ltree)) && ((rtree==null && T.rtree==null) || rtree.compare(T.rtree));
 		}
-		catch(Exception e)
-		{
+		catch(Exception e) {
 			return false;
 		}
 

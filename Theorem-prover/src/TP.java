@@ -34,39 +34,78 @@ public class TP {
 			map.put(k,ins);
 			lhs_tree.add(ins);
 		}
-		if(ins.Nodeval.equals("F")) {found=true; System.out.println("Mil Gaya");}
+		if(ins.Nodeval.equals("F")) {found=true; System.out.println("QED");}
 	}
 	public static void applymp()
 	{
-		for(int i=0;i<lhs_tree.size();i++)
+		List<Integer> toRemove = new ArrayList<Integer>();
+		int count = 0, size_i = lhs_tree.size();
+		for(int i=0;i<size_i;i++)
 		{
-			for(int j=0;j<lhs_tree.size();j++)
+			count = 0;
+			for(int j=0;j<size_i;j++)
 			{
 				if(mod_pon(lhs_tree.get(i),lhs_tree.get(j)))
 				{
-					parseTree ins=new parseTree(lhs_tree.get(j).rtree);
-					String k=parseTree.print_tree(ins);
-					//map2.put(k,ins);
-					Add_pt(ins);///
-					k=parseTree.print_tree(lhs_tree.get(j));
-					//map2.put(k,lhs_tree.get(j));
+					if(map_orig.get(parseTree.print_tree(lhs_tree.get(j)))!=null || map_orig.get(parseTree.print_tree(lhs_tree.get(i)))!=null) {
+						count++;
+						parseTree ins=new parseTree(lhs_tree.get(j).rtree);
+						Add_pt(ins);///
+					}
 				}
 				if(mod_pon(lhs_tree.get(j),lhs_tree.get(i)))
 				{
-					parseTree ins=new parseTree(lhs_tree.get(i).rtree);
-					String k=parseTree.print_tree(ins);
-					//map2.put(k,ins);
-					Add_pt(ins);///
-					k=parseTree.print_tree(lhs_tree.get(j));
-					//map2.put(k,lhs_tree.get(j));
-					k=parseTree.print_tree(lhs_tree.get(i));
-					//map2.put(k,lhs_tree.get(i));
+					if(map_orig.get(parseTree.print_tree(lhs_tree.get(j)))!=null || map_orig.get(parseTree.print_tree(lhs_tree.get(i)))!=null) {
+						count++;
+						parseTree ins=new parseTree(lhs_tree.get(i).rtree);
+						Add_pt(ins);///
+					}
 				}
 			}
+			if(count == 0)
+				toRemove.add(i);
 		}
+		for(int i = 0; i < toRemove.size(); i++){
+			parseTree t = lhs_tree.get(toRemove.get(i));
+			lhs_tree.remove(toRemove.get(i));
+			map.remove(parseTree.print_tree(t));
+		}
+		System.out.println("Removed "+toRemove.size()+" after MP.");
 		lowval=lhs_tree.size();
 	}
 
+
+	static boolean mod_tol(parseTree T1, parseTree T2)
+	{
+		// T1~q
+		// T2p->q
+		if(T1.ltree==null) return false;
+		boolean b=T1.ltree.compare(T2.rtree);
+		boolean k=false;
+		if(T1.rtree.Nodeval.equals("F") && T1.rtree.rtree==null && T1.rtree.ltree==null) k=true;
+		return b&k;
+	}
+
+	public static void applymt()
+	{
+		int size_i = lhs_tree.size();
+		for(int i=0;i<size_i;i++)
+		{
+			for(int j=0;j<size_i;j++)
+			{
+				if(mod_tol(lhs_tree.get(i),lhs_tree.get(j)))
+				{
+					parseTree ins = new parseTree(lhs_tree.get(j).rtree);
+					Add_pt(ins);///
+				}
+				if(mod_tol(lhs_tree.get(j),lhs_tree.get(i)))
+				{
+					parseTree ins=new parseTree(lhs_tree.get(i).rtree);
+					Add_pt(ins);///
+				}
+			}
+		}
+	}
 
 	public static String stripBrackets(String line) {
 		if (line.charAt(0) != '(')
@@ -247,27 +286,35 @@ public class TP {
 		for (String key : subtrees.keySet()) 
 		{
 			parseTree A = subtrees.get(key);
+			if (parseTree.print_tree(A).length() > 40)
+				continue;
 			parseTree T3 = parseTree.A3(A);
 			new_map.put(parseTree.print_tree(T3), T3);
-			//			System.out.println("A3 on " + parseTree.print_tree(A) + " gives " + parseTree.print_tree(T3));
+
+			//	System.out.println("A3 on " + parseTree.print_tree(A) + " gives " + parseTree.print_tree(T3));
 			for (String key2 : subtrees.keySet()) 
 			{
 				parseTree B = subtrees.get(key2);
+				if (parseTree.print_tree(B).length() > 40 || A.compare(B))
+					continue;
 				parseTree T1 = parseTree.A1(A, B);
 				new_map.put(parseTree.print_tree(T1), T1);
-				//				System.out.println("A1 on " + parseTree.print_tree(A) + " and " + parseTree.print_tree(B) + " gives " + parseTree.print_tree(T1));
+				//	System.out.println("A1 on " + parseTree.print_tree(A) + " and " + parseTree.print_tree(B) + " gives " + parseTree.print_tree(T1));
 				for (String key3 : subtrees.keySet()) 
 				{
 					parseTree C = subtrees.get(key3);
+					if (parseTree.print_tree(C).length() > 40 || A.compare(C) || B.compare(C))
+						continue;
 					parseTree T2 = parseTree.A2(A, B, C);
 					new_map.put(parseTree.print_tree(T2), T2);
-					//					System.out.println("A2 on " + parseTree.print_tree(A) + " and " + parseTree.print_tree(B) + " and " + parseTree.print_tree(C) + " gives " + parseTree.print_tree(T2));
+					//	System.out.println("A2 on " + parseTree.print_tree(A) + " and " + parseTree.print_tree(B) + " and " + parseTree.print_tree(C) + " gives " + parseTree.print_tree(T2));
 				}
 			}
 		}
 
+
 		for (String key : new_map.keySet()) {
-			if (key == "F") {
+			if (stripBrackets(key).equals("F")) {
 				found = true;
 			}
 			Add_pt(new_map.get(key));
@@ -281,10 +328,10 @@ public class TP {
 		Scanner input = new Scanner(System.in);
 		String line = input.nextLine();
 
-		//		String line = "(p|(p&q))->p";
 		line = reduceAND(reduceOR(reduceNOT(line)));
 		System.out.println("line = " + line);
 		moveLeft(line);
+		System.out.println("Initial set of hypothesis: ");
 		for(int i = 0; i < lhs.size()-1; i++) {
 			System.out.println(lhs.get(i));
 		}
@@ -295,27 +342,25 @@ public class TP {
 		lhs_tree_orig = new ArrayList<parseTree>(lhs_tree);
 		map_orig = new HashMap<String, parseTree>(map);
 
-		//		for(i = 0; i < lhs_tree.size(); i++)
-		//			System.out.println(parseTree.print_tree(lhs_tree.get(i)));
-		//		parseTree t = new parseTree();
-		//		parseTree.create_pt(t, "(p->(q->F))->F");
-		//		System.out.println(parseTree.print_tree(t));
-
-		int i = 0;
-		while (!found){
+		int i = 0, lim = 1;
+		while (!found) {
 			i = 0;
-			while(!found && i++ < 1) {
+			while(!found && i++ < lim++) {
 				applyAxioms();
 				applymp();
+//				applymt();
 				System.out.println(lhs_tree.size());
 			}
 			if (!found) {
-				System.out.println("It seems that the ATP is stuck and need some human intervention. Press 1 to Apply Axiom 1, 2 to apply Axiom 2, 3 to apply axiom 3 and 4 to use a new theorem");
+				System.out.println("It seems that the ATP is stuck and need some human intervention. \nPress 1 to Apply Axiom 1, 2 to apply Axiom 2, 3 to apply axiom 3 and 4 to use a new theorem");
 				String ans=input.nextLine();
 				parseTree ins=new parseTree();
 				if(ans.equals("1"))
 				{
+					System.out.println("Axiom 1 is (A->(B->A))");
+					System.out.println("Input A: ");
 					String a=input.nextLine();
+					System.out.println("Input B: ");
 					String b=input.nextLine();
 					a = reduceAND(reduceOR(reduceNOT(a)));
 					b = reduceAND(reduceOR(reduceNOT(b)));
@@ -328,9 +373,14 @@ public class TP {
 				}
 				else if(ans.equals("2"))
 				{
+					System.out.println("Axiom 2 is (A->(B->C))->((A->B)->(A->C))");
+					System.out.println("Input A: ");
 					String a=input.nextLine();
+					System.out.println("Input B: ");
 					String b=input.nextLine();
+					System.out.println("Input C: ");
 					String c=input.nextLine();
+
 					a = reduceAND(reduceOR(reduceNOT(a)));
 					b = reduceAND(reduceOR(reduceNOT(b)));
 					c = reduceAND(reduceOR(reduceNOT(c)));
@@ -344,6 +394,8 @@ public class TP {
 				}
 				else if(ans.equals("3"))
 				{
+					System.out.println("Axiom 3 is ((A->F)->F)->A");
+					System.out.println("Input A: ");
 					String a=input.nextLine();
 					parseTree A=new parseTree();
 					parseTree.create_pt(A,a);
@@ -354,7 +406,7 @@ public class TP {
 					String a=input.nextLine();
 					parseTree.create_pt(ins,a);
 				}
-				
+
 				String k = parseTree.print_tree(ins);
 				if(map_orig.get(k)==null) 
 				{
@@ -366,6 +418,9 @@ public class TP {
 				map = new HashMap<String, parseTree>(map_orig);
 			}
 		}
-	}
-
+	}	
 }
+/* Demorgan's laws
+ * ((~p)|(~q))->(~(p&q))
+ */
+
