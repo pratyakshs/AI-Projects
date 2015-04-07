@@ -87,11 +87,6 @@ void palindrome_n(int n, vector<vector<int> > &ans)
 				ans[i][j]=-ans[i][j];
 			}
 		}
-		for(int j=0;j<=n;j++)
-		{
-			cout<<ans[i][j]<<" ";
-		}
-		cout<<endl;
 	}
 }
 
