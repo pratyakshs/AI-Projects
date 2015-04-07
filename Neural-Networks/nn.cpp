@@ -9,8 +9,9 @@ using namespace std;
 
 template <typename T> 
 inline double dot_product(vector<double> weights, vector<T> x) {
+//    cout << weights.size() << " " << x.size() << endl;
 	assert(weights.size() == x.size());
-
+    
 	double ans = 0;
 	for(int i = 0; i < weights.size(); i++) {
 		ans += (weights[i] * x[i]);
@@ -54,7 +55,9 @@ inline double sigmoid(double arg) {
 }
 
 template <typename T> 
-void forward_pass(vector<vector<vector<double>>> &network, vector<T> inputs, vector<vector<T>> l_outputs) {
+void forward_pass(vector<vector<vector<double>>> &network, vector<T> inputs, vector<vector<T>> &l_outputs) {
+    // l_outputs is empty initially
+
 	int layers = network.size();
 	// layer -1 = inputs
 	vector<double> prev_outputs = inputs;
@@ -62,6 +65,7 @@ void forward_pass(vector<vector<vector<double>>> &network, vector<T> inputs, vec
 	l_outputs.push_back(inputs);
 
 	for(int i = 1; i < layers; i++) {
+
 		vector<double> outputs;
 		for(int j = 0; j < network[i].size(); j++) {
 			double net = dot_product(network[i][j], prev_outputs);
@@ -82,8 +86,22 @@ void backpropagation(vector<vector<vector<double>>> &network, vector<vector<T>> 
 
 	assert(examples_i.size() == examples_o.size());
 	int iters = examples_i.size(), layers = network.size(); 
+    int loop_iters = 1000;
+	while(loop_iters--) {
 
-	while(true) {
+        /*
+        for(int i = 0; i < network.size(); i++) {
+            for(int j = 0; j < network[i].size(); j++) {
+                cout << "{" ;
+                for(int k = 0; k < network[i][j].size(); k++) {
+                    cout << network[i][j][k] << ",";
+                }
+                cout << "} ";
+            }
+            cout << endl;
+        }
+        cout << endl << endl;
+        */
 		int zero_delW = 0;
 		for(int i = 0; i < iters; i++) {
 			vector<T> inputs = examples_i[i];
@@ -149,17 +167,53 @@ void backpropagation(vector<vector<vector<double>>> &network, vector<vector<T>> 
 
 int main() {
 	vector<vector<int> > ans(power(2,5), vector<int>(5+1, 0));
-	majority_n(5,ans);
-	vector<double> weights(5+1, 0);
+	palindrome_n(5,ans);
+   
+    vector<vector<double>> examples_i, examples_o;    
+    for(int i = 0; i < ans.size(); i++) {
 
-	// vector<double> weights(2+1, 0);
-	int iters = PTA(weights, ans);
+        if (ans[i][0] > 0) {
+            examples_o.push_back(vector<double>(1,0));
+            vector<double> v;
+            for(int j = 1; j < ans[i].size(); j++) {
+                v.push_back(-ans[i][j]);
+            }
+            examples_i.push_back(v);
+        }
+        else {
+            examples_o.push_back(vector<double>(1,1));
+            vector<double> v;
+            for(int j = 1; j < ans[i].size(); j++)
+                v.push_back(ans[i][j]);
+            examples_i.push_back(v);
+        }
+    }
 
-	printf("weights computed in %i iterations\n", iters);
+    vector<vector<vector<double>>> network = {{{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1}},
+                                               {{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1}},
+                                               {{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1},{1,1,1,1,1,1}},
+                                               {{1,1,1,1,1,1}}};
+
+    vector<vector<double>> l_out;
+   /* forward_pass(network, examples_i[0], l_out);
+
+    for(int i = 0; i < l_out.size(); i++) {
+        for(int j = 0; j < l_out[i].size(); j++) 
+            cout << l_out[i][j] << " ";
+        cout << endl;
+    }
+    */
+    backpropagation(network, examples_i, examples_o, 1);
+/*	vector<double> weights(5+1, 0);
+
+    int iters = PTA(weights, ans);
+    vector<vector<vector<double>>> weights(
+    
+    printf("weights computed in %i iterations\n", iters);
 	for(int i = 0; i < weights.size(); i++) {
 		printf("%lf ", weights[i]);
 	}
-
+*/
 
 	return 0;
 }
