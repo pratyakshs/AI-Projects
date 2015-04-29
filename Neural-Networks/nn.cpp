@@ -14,7 +14,7 @@ using namespace std;
 #define P_LEN 6
 
 int len = 8;
-bool reverse_run = true;
+bool reverse_run = false;
 
 template <typename T> 
 inline double dot_product(vector<double> weights, vector<T> x) {
@@ -95,12 +95,13 @@ void backpropagation(vector<vector<vector<double>>> &network, vector<vector<T>> 
 
 	assert(examples_i.size() == examples_o.size());
 	int iters = examples_i.size(), layers = network.size(); 
-    int loop_iters = 3;
+    int loop_iters = 2;
 	while(loop_iters--) {
 		cout << loop_iters << endl;
 
 		int zero_delW = 0;
 		for(int i = 0; i < iters; i++) {
+			if (i % 1000 == 0) cout << i << endl;
 			vector<T> inputs = examples_i[i];
 			vector<vector<T>> outputs; 
 			forward_pass(network, inputs, outputs);
@@ -490,6 +491,7 @@ void test_G_P() {
 
 	backpropagation(network, examples_i, examples_o, 0.4);
 	cout << "learning done! \n";
+	return;
 
 	// vector<vector<double>> l_outputs;
 	// forward_pass(network, examples_i[0], l_outputs);
